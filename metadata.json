@@ -1,0 +1,8 @@
+{
+  "name": "FOLDR - Gestão Audiovisual",
+  "description": "Uma plataforma inteligente para profissionais de audiovisual gerenciarem projetos, briefings e planos de produção automatizados com auxílio de IA.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
