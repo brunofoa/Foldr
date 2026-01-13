@@ -9,6 +9,7 @@ import ClientsList from './components/ClientsList';
 import ClientHistory from './components/ClientHistory';
 import MeiFormalization from './components/MeiFormalization';
 import Agenda from './components/Agenda';
+import Marketing from './components/Marketing';
 import Login from './components/Login';
 import { generateProductionPlan } from './services/geminiService';
 import { supabase, isConfigured } from './services/supabaseClient';
@@ -18,7 +19,7 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
 
-  const [view, setView] = useState<'dashboard' | 'create' | 'briefing' | 'details' | 'projects-list' | 'clients-list' | 'client-history' | 'mei-formalization' | 'agenda'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'create' | 'briefing' | 'details' | 'projects-list' | 'clients-list' | 'client-history' | 'mei-formalization' | 'agenda' | 'marketing'>('dashboard');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -207,6 +208,7 @@ const App: React.FC = () => {
     { label: 'Projetos', view: 'projects-list' as const, icon: 'fa-clapperboard' },
     { label: 'Clientes', view: 'clients-list' as const, icon: 'fa-users' },
     { label: 'MEI', view: 'mei-formalization' as const, icon: 'fa-id-card' },
+    { label: 'Marketing', view: 'marketing' as const, icon: 'fa-bullhorn' },
   ];
 
   // 1. Check Configuration
@@ -254,8 +256,7 @@ const App: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('dashboard')}>
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/20">F</div>
-              <span className="text-xl font-black tracking-tighter text-white">FOLDR</span>
+              <img src="/foldr-logo.png" alt="Foldr" className="h-8 object-contain" />
             </div>
 
             {/* Desktop Nav */}
@@ -398,6 +399,10 @@ const App: React.FC = () => {
 
         {view === 'mei-formalization' && (
           <MeiFormalization onBack={() => navigate('dashboard')} />
+        )}
+
+        {view === 'marketing' && (
+          <Marketing onBack={() => navigate('dashboard')} />
         )}
 
         {view === 'create' && (

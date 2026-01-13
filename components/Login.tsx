@@ -44,8 +44,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
             <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl animate-fadeIn">
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center font-bold text-3xl shadow-lg shadow-indigo-500/20 mx-auto mb-4 text-white">F</div>
-                    <h1 className="text-3xl font-black text-white tracking-tight">Bem-vindo ao FOLDR</h1>
+                    <img src="/foldr-logo.png" alt="Foldr" className="h-24 mx-auto mb-6 object-contain" />
+                    <h1 className="text-2xl font-bold text-white tracking-tight">Bem-vindo</h1>
                     <p className="text-slate-400">Entre para gerenciar sua produção.</p>
                 </div>
 
