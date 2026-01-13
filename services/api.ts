@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient';
 import { Database } from '../types/database.types';
-import { Project, ProjectStatus, Client, CalendarEvent } from '../types';
+import { Project, ProjectStatus, Client, CalendarEvent, UserProfile } from '../types';
 
 // Map database row to app Project type
 const mapProject = (row: any): Project => ({
@@ -292,5 +292,43 @@ export const api = {
             .update({ status })
             .eq('id', id);
         if (error) throw error;
+    },
+
+    getProfile: async (userId: string) => {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .single();
+
+        if (error) throw error;
+
+        return {
+            id: data.id,
+            email: data.email,
+            fullName: data.full_name,
+            avatarUrl: data.avatar_url,
+            phone: data.phone,
+            birthDate: data.birth_date,
+            updatedAt: data.updated_at
+        };
+    },
+
+    updateProfile: async (userId: string, profile: Partial<UserProfile>) => {
+        const updates: any = {
+            id: userId,
+            updated_at: new Date().toISOString(),
+        };
+        if (profile.fullName) updates.full_name = profile.fullName;
+        if (profile.avatarUrl) updates.avatar_url = profile.avatarUrl;
+        if (profile.phone) updates.phone = profile.phone;
+        if (profile.birthDate) updates.birth_date = profile.birthDate;
+
+        const { error } = await supabase
+            .from('profiles')
+            .upsert(updates);
+
+        if (error) throw error;
     }
 };
+

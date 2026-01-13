@@ -72,3 +72,13 @@ export interface BriefingQuestion {
   type: 'text' | 'number' | 'date' | 'select';
   options?: string[];
 }
+
+export interface UserProfile {
+  id: string;
+  email?: string;
+  fullName?: string;
+  avatarUrl?: string;
+  phone?: string;
+  birthDate?: string;
+  updatedAt?: string;
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Project, ProjectType, ProjectStatus, Client, CalendarEvent } from './types';
+import { Project, ProjectType, ProjectStatus, Client, CalendarEvent, UserProfile } from './types';
 import { api } from './services/api';
 import Dashboard from './components/Dashboard';
 import BriefingWizard from './components/BriefingWizard';
@@ -10,6 +10,7 @@ import ClientHistory from './components/ClientHistory';
 import MeiFormalization from './components/MeiFormalization';
 import Agenda from './components/Agenda';
 import Marketing from './components/Marketing';
+import Profile from './components/Profile';
 import Login from './components/Login';
 import { generateProductionPlan } from './services/geminiService';
 import { supabase, isConfigured } from './services/supabaseClient';
@@ -19,7 +20,7 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loadingSession, setLoadingSession] = useState(true);
 
-  const [view, setView] = useState<'dashboard' | 'create' | 'briefing' | 'details' | 'projects-list' | 'clients-list' | 'client-history' | 'mei-formalization' | 'agenda' | 'marketing'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'create' | 'briefing' | 'details' | 'projects-list' | 'clients-list' | 'client-history' | 'mei-formalization' | 'agenda' | 'marketing' | 'profile'>('dashboard');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -29,6 +30,7 @@ const App: React.FC = () => {
   const [clientSearchTerm, setClientSearchTerm] = useState('');
   const [showClientSuggestions, setShowClientSuggestions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
   const [newProjectBase, setNewProjectBase] = useState<{ name: string, client: string, type: ProjectType, date: string } | null>(null);
 
@@ -75,8 +77,20 @@ const App: React.FC = () => {
         .then(setEvents)
         .catch(console.error)
         .finally(() => setIsLoading(false));
+
+      // Load Profile
+      loadUserProfile(session.user.id);
     }
   }, [session]);
+
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const profile = await api.getProfile(userId);
+      setUserProfile(profile);
+    } catch (error) {
+      console.error("Failed to load profile", error);
+    }
+  };
 
   const navigate = (newView: typeof view) => {
     setView(newView);
@@ -289,10 +303,10 @@ const App: React.FC = () => {
             >
               <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
             </button>
-            <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-slate-800">
+            <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-slate-800 cursor-pointer" onClick={() => navigate('profile')}>
               <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs overflow-hidden">
-                {session.user.user_metadata.avatar_url ? (
-                  <img src={session.user.user_metadata.avatar_url} alt="User" className="w-full h-full object-cover" />
+                {userProfile?.avatarUrl ? (
+                  <img src={userProfile.avatarUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (
                   <i className="fa-solid fa-user"></i>
                 )}
@@ -302,35 +316,37 @@ const App: React.FC = () => {
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-slate-800 bg-slate-900/95 animate-fadeIn">
-            <div className="p-4 space-y-2">
-              {navLinks.map((link) => (
-                <button
-                  key={link.view}
-                  onClick={() => navigate(link.view)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold transition-all ${view.startsWith(link.view.split('-')[0])
-                    ? 'text-indigo-400 bg-indigo-500/10'
-                    : 'text-slate-400 active:bg-slate-800'
-                    }`}
-                >
-                  <i className={`fa-solid ${link.icon} w-5`}></i>
-                  {link.label}
-                </button>
-              ))}
-              <div className="pt-4 mt-4 border-t border-slate-800">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold text-red-400 hover:bg-red-500/10 transition-all"
-                >
-                  <i className="fa-solid fa-right-from-bracket w-5"></i>
-                  Sair
-                </button>
+        {
+          isMenuOpen && (
+            <div className="md:hidden border-t border-slate-800 bg-slate-900/95 animate-fadeIn">
+              <div className="p-4 space-y-2">
+                {navLinks.map((link) => (
+                  <button
+                    key={link.view}
+                    onClick={() => navigate(link.view)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold transition-all ${view.startsWith(link.view.split('-')[0])
+                      ? 'text-indigo-400 bg-indigo-500/10'
+                      : 'text-slate-400 active:bg-slate-800'
+                      }`}
+                  >
+                    <i className={`fa-solid ${link.icon} w-5`}></i>
+                    {link.label}
+                  </button>
+                ))}
+                <div className="pt-4 mt-4 border-t border-slate-800">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold text-red-400 hover:bg-red-500/10 transition-all"
+                  >
+                    <i className="fa-solid fa-right-from-bracket w-5"></i>
+                    Sair
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </nav>
+          )
+        }
+      </nav >
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {isLoading && (
@@ -403,6 +419,14 @@ const App: React.FC = () => {
 
         {view === 'marketing' && (
           <Marketing onBack={() => navigate('dashboard')} />
+        )}
+
+        {view === 'profile' && session && (
+          <Profile
+            session={session}
+            onBack={() => navigate('dashboard')}
+            onProfileUpdate={() => loadUserProfile(session.user.id)}
+          />
         )}
 
         {view === 'create' && (
@@ -511,7 +535,7 @@ const App: React.FC = () => {
           <p className="text-slate-600 text-xs">Gestão Inteligente para Criativos do Audiovisual.</p>
         </div>
       </footer>
-    </div>
+    </div >
   );
 };
 export default App;
