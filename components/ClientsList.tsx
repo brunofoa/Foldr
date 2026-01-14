@@ -21,7 +21,7 @@ interface ClientSummary {
 const ClientsList: React.FC<ClientsListProps> = ({ projects, clients, onBack, onSelectClient, onAddClient }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', birthDate: '' });
+  const [newClient, setNewClient] = useState({ name: '', phone: '', email: '', birthDate: '', company: '', tags: '' });
 
   // Extract unique clients from projects and merge with registered clients
   const clientMap = projects.reduce((acc, project) => {
@@ -65,9 +65,17 @@ const ClientsList: React.FC<ClientsListProps> = ({ projects, clients, onBack, on
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddClient(newClient);
+    const tagsArray = newClient.tags ? newClient.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+    onAddClient({
+      name: newClient.name,
+      phone: newClient.phone,
+      email: newClient.email,
+      birthDate: newClient.birthDate,
+      company: newClient.company,
+      tags: tagsArray
+    });
     setIsModalOpen(false);
-    setNewClient({ name: '', phone: '', email: '', birthDate: '' });
+    setNewClient({ name: '', phone: '', email: '', birthDate: '', company: '', tags: '' });
   };
 
   return (
@@ -132,7 +140,17 @@ const ClientsList: React.FC<ClientsListProps> = ({ projects, clients, onBack, on
                     </div>
                     <div className="flex flex-col">
                       <span className="text-white font-semibold">{client.name}</span>
-                      {client.details?.email && <span className="text-[10px] text-slate-500">{client.details.email}</span>}
+                      <div className="flex gap-2 text-[10px] text-slate-500">
+                        {client.details?.company && <span>{client.details.company}</span>}
+                        {client.details?.email && <span>• {client.details.email}</span>}
+                      </div>
+                      {client.details?.tags && client.details.tags.length > 0 && (
+                        <div className="flex gap-1 mt-1">
+                          {client.details.tags.slice(0, 3).map(tag => (
+                            <span key={tag} className="px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 text-[9px]">{tag}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -192,6 +210,18 @@ const ClientsList: React.FC<ClientsListProps> = ({ projects, clients, onBack, on
                     placeholder="João Silva"
                   />
                 </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Empresa</label>
+                  <input
+                    type="text"
+                    value={newClient.company}
+                    onChange={e => setNewClient({ ...newClient, company: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-indigo-500 outline-none transition-all"
+                    placeholder="Nome da Empresa (Opcional)"
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Telefone</label>
@@ -223,6 +253,18 @@ const ClientsList: React.FC<ClientsListProps> = ({ projects, clients, onBack, on
                     placeholder="cliente@exemplo.com"
                   />
                 </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Tags</label>
+                  <input
+                    type="text"
+                    value={newClient.tags}
+                    onChange={e => setNewClient({ ...newClient, tags: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-indigo-500 outline-none transition-all"
+                    placeholder="Ex: VIP, Casamento, Indicação (separar por vírgula)"
+                  />
+                </div>
+
                 <div className="pt-4">
                   <button
                     type="submit"

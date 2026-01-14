@@ -18,10 +18,12 @@ const ClientHistory: React.FC<ClientHistoryProps> = ({ clientName, clients, proj
   );
 
   const [isEditing, setIsEditing] = React.useState(false);
-  const [editForm, setEditForm] = React.useState<{ phone: string, email: string, birthDate: string }>({
+  const [editForm, setEditForm] = React.useState<{ phone: string, email: string, birthDate: string, company: string, tags: string }>({
     phone: '',
     email: '',
-    birthDate: ''
+    birthDate: '',
+    company: '',
+    tags: ''
   });
 
   React.useEffect(() => {
@@ -29,7 +31,9 @@ const ClientHistory: React.FC<ClientHistoryProps> = ({ clientName, clients, proj
       setEditForm({
         phone: clientDetails.phone || '',
         email: clientDetails.email || '',
-        birthDate: clientDetails.birthDate || ''
+        birthDate: clientDetails.birthDate || '',
+        company: clientDetails.company || '',
+        tags: clientDetails.tags?.join(', ') || ''
       });
     }
   }, [clientDetails]);
@@ -40,7 +44,9 @@ const ClientHistory: React.FC<ClientHistoryProps> = ({ clientName, clients, proj
         ...clientDetails,
         phone: editForm.phone,
         email: editForm.email,
-        birthDate: editForm.birthDate
+        birthDate: editForm.birthDate,
+        company: editForm.company,
+        tags: editForm.tags.split(',').map(t => t.trim()).filter(t => t)
       });
       setIsEditing(false);
     }
@@ -55,7 +61,17 @@ const ClientHistory: React.FC<ClientHistoryProps> = ({ clientName, clients, proj
           </div>
           <div>
             <h1 className="text-3xl font-bold text-white tracking-tight">{clientName}</h1>
-            <p className="text-slate-400">Histórico de projetos e informações de contato.</p>
+            <p className="text-slate-400">
+              {clientDetails?.company && <span className="font-bold text-white mr-2">{clientDetails.company}</span>}
+              Histórico de projetos e informações de contato.
+            </p>
+            {clientDetails?.tags && clientDetails.tags.length > 0 && (
+              <div className="flex gap-2 mt-2">
+                {clientDetails.tags.map(tag => (
+                  <span key={tag} className="px-2 py-0.5 rounded-md bg-slate-700 text-slate-300 text-xs font-medium">{tag}</span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <button
@@ -85,6 +101,36 @@ const ClientHistory: React.FC<ClientHistoryProps> = ({ clientName, clients, proj
             </div>
 
             <div className="space-y-4">
+              {/* Company Input */}
+              <div className="flex items-center gap-3">
+                <i className="fa-solid fa-building text-slate-500 w-5"></i>
+                {isEditing ? (
+                  <input
+                    value={editForm.company}
+                    onChange={e => setEditForm({ ...editForm, company: e.target.value })}
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white w-full outline-none focus:border-indigo-500"
+                    placeholder="Empresa"
+                  />
+                ) : (
+                  <span className="text-slate-200">{clientDetails?.company || 'Sem empresa'}</span>
+                )}
+              </div>
+
+              {/* Tags Input */}
+              <div className="flex items-center gap-3">
+                <i className="fa-solid fa-tags text-slate-500 w-5"></i>
+                {isEditing ? (
+                  <input
+                    value={editForm.tags}
+                    onChange={e => setEditForm({ ...editForm, tags: e.target.value })}
+                    className="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm text-white w-full outline-none focus:border-indigo-500"
+                    placeholder="Tags (separar por vírgula)"
+                  />
+                ) : (
+                  <span className="text-slate-200">{clientDetails?.tags?.length ? `${clientDetails.tags.length} tags` : 'Sem tags'}</span>
+                )}
+              </div>
+
               <div className="flex items-center gap-3">
                 <i className="fa-solid fa-phone text-slate-500 w-5"></i>
                 {isEditing ? (

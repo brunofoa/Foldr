@@ -14,6 +14,7 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
     const [message, setMessage] = useState('');
     const [sentIds, setSentIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedTag, setSelectedTag] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
 
     // Load clients on mount
@@ -29,11 +30,16 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
             });
     }, []);
 
-    // Filter clients based on search
-    const filteredClients = clients.filter(c =>
-        c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Extract all unique tags
+    const allTags = Array.from(new Set(clients.flatMap(c => c.tags || []))).sort();
+
+    // Filter clients based on search and selected tag
+    const filteredClients = clients.filter(c => {
+        const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesTag = selectedTag ? c.tags?.includes(selectedTag) : true;
+        return matchesSearch && matchesTag;
+    });
 
     // Selection Logic
     const toggleSelectAll = () => {
@@ -67,7 +73,12 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
             phone = `55${phone}`;
         }
 
-        const encodedMessage = encodeURIComponent(message);
+        // Variable Substitution
+        let finalMessage = message;
+        finalMessage = finalMessage.replace(/{nome}/g, client.name.split(' ')[0]); // First name only
+        finalMessage = finalMessage.replace(/{empresa}/g, client.company || '');
+
+        const encodedMessage = encodeURIComponent(finalMessage);
         const url = `https://wa.me/${phone}?text=${encodedMessage}`;
 
         window.open(url, '_blank');
@@ -106,12 +117,31 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {/* Left Column: Client Selection */}
                     <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col h-[600px]">
-                        <div className="p-6 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10">
-                            <div className="flex items-center justify-between mb-4">
+                        <div className="p-6 border-b border-slate-800 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-10 space-y-4">
+                            <div className="flex items-center justify-between">
                                 <h2 className="font-bold text-white text-lg">Destinatários</h2>
                                 <span className="text-xs font-bold bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full">
                                     {selectedIds.length} selecionados
                                 </span>
+                            </div>
+
+                            {/* Tag Filter */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700">
+                                <button
+                                    onClick={() => setSelectedTag('')}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${!selectedTag ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                                >
+                                    Todos
+                                </button>
+                                {allTags.map(tag => (
+                                    <button
+                                        key={tag}
+                                        onClick={() => setSelectedTag(tag)}
+                                        className={`px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors ${selectedTag === tag ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
+                                    >
+                                        {tag}
+                                    </button>
+                                ))}
                             </div>
 
                             <div className="flex gap-2">
@@ -141,8 +171,8 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
                                         key={client.id}
                                         onClick={() => toggleClient(client.id)}
                                         className={`flex items-center p-3 rounded-xl cursor-pointer transition-all border ${selectedIds.includes(client.id)
-                                                ? 'bg-indigo-600/10 border-indigo-500/50'
-                                                : 'bg-transparent border-transparent hover:bg-slate-800'
+                                            ? 'bg-indigo-600/10 border-indigo-500/50'
+                                            : 'bg-transparent border-transparent hover:bg-slate-800'
                                             }`}
                                     >
                                         <div className={`w-5 h-5 rounded border mr-3 flex items-center justify-center transition-colors ${selectedIds.includes(client.id) ? 'bg-indigo-500 border-indigo-500' : 'border-slate-600'
@@ -150,10 +180,21 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
                                             {selectedIds.includes(client.id) && <i className="fa-solid fa-check text-white text-xs"></i>}
                                         </div>
                                         <div>
-                                            <p className={`text-sm font-bold ${selectedIds.includes(client.id) ? 'text-white' : 'text-slate-300'}`}>
-                                                {client.name}
-                                            </p>
-                                            <p className="text-xs text-slate-500">{client.phone || 'Sem telefone'}</p>
+                                            <div className="flex items-center gap-2">
+                                                <p className={`text-sm font-bold ${selectedIds.includes(client.id) ? 'text-white' : 'text-slate-300'}`}>
+                                                    {client.name}
+                                                </p>
+                                                {client.company && (
+                                                    <span className="text-[10px] text-slate-500 bg-slate-800 px-1.5 rounded">{client.company}</span>
+                                                )}
+                                            </div>
+                                            {client.tags && client.tags.length > 0 && (
+                                                <div className="flex gap-1 mt-1">
+                                                    {client.tags.slice(0, 3).map(tag => (
+                                                        <span key={tag} className="text-[9px] text-indigo-300 bg-indigo-500/10 px-1 rounded">{tag}</span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))
@@ -169,11 +210,29 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
                     <div className="flex flex-col h-[600px] space-y-6">
                         <div className="flex-1 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col">
                             <label className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Sua Mensagem</label>
+
+                            {/* Variable Shortcuts */}
+                            <div className="flex gap-2 mb-2">
+                                <button
+                                    onClick={() => setMessage(prev => prev + '{nome} ')}
+                                    className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs text-indigo-400 font-mono transition-colors"
+                                >
+                                    {'{nome}'}
+                                </button>
+                                <button
+                                    onClick={() => setMessage(prev => prev + '{empresa} ')}
+                                    className="px-2 py-1 bg-slate-800 hover:bg-slate-700 rounded text-xs text-indigo-400 font-mono transition-colors"
+                                >
+                                    {'{empresa}'}
+                                </button>
+                                <span className="text-xs text-slate-600 self-center ml-2">Variáveis dinâmicas</span>
+                            </div>
+
                             <textarea
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
-                                placeholder="Olá! Gostaria de falar sobre..."
-                                className="flex-1 w-full bg-slate-950 border border-slate-700 rounded-xl p-4 text-white placeholder:text-slate-700 focus:border-indigo-500 outline-none resize-none leading-relaxed"
+                                placeholder="Olá {nome}! Gostaria de falar sobre a {empresa}..."
+                                className="flex-1 w-full bg-slate-950 border border-slate-700 rounded-xl p-4 text-white placeholder:text-slate-700 focus:border-indigo-500 outline-none resize-none leading-relaxed font-sans"
                             />
                             <div className="mt-2 text-right text-xs text-slate-500">
                                 {message.length} caracteres
@@ -224,8 +283,8 @@ const Marketing: React.FC<MarketingProps> = ({ onBack }) => {
                                     <button
                                         onClick={() => handleSend(client)}
                                         className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${isSent
-                                                ? 'bg-slate-800 text-slate-500 hover:bg-slate-700'
-                                                : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
+                                            ? 'bg-slate-800 text-slate-500 hover:bg-slate-700'
+                                            : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20'
                                             }`}
                                     >
                                         {isSent ? 'Enviado' : 'Enviar WhatsApp'}

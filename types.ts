@@ -40,6 +40,8 @@ export interface Client {
   phone: string;
   email: string;
   birthDate: string;
+  company?: string;
+  tags?: string[];
   createdAt: string;
 }
 
@@ -60,6 +62,8 @@ export interface Project {
   type: ProjectType;
   deliveryDate: string;
   status: ProjectStatus;
+  value?: number;
+  notes?: string;
   steps: ProductionStep[];
   checklist: Task[];
   alerts: Alert[];

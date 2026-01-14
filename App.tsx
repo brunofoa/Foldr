@@ -32,7 +32,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  const [newProjectBase, setNewProjectBase] = useState<{ name: string, client: string, type: ProjectType, date: string } | null>(null);
+  const [newProjectBase, setNewProjectBase] = useState<{ name: string, client: string, type: ProjectType, date: string, value: string, notes: string } | null>(null);
 
   // Auth & Session Check
   useEffect(() => {
@@ -106,6 +106,8 @@ const App: React.FC = () => {
       client: formData.get('client') as string,
       type: formData.get('type') as ProjectType,
       date: formData.get('date') as string,
+      value: formData.get('value') as string,
+      notes: formData.get('notes') as string,
     });
     navigate('briefing');
   };
@@ -134,6 +136,8 @@ const App: React.FC = () => {
         client: newProjectBase.client,
         type: newProjectBase.type,
         deliveryDate: newProjectBase.date,
+        value: parseFloat(newProjectBase.value) || 0,
+        notes: newProjectBase.notes,
         status: ProjectStatus.PLANEJAMENTO,
         steps: plan.steps.map((s: any) => ({ ...s, completed: false })),
         checklist: plan.checklist.map((c: any) => ({ ...c, completed: false })),
@@ -291,20 +295,17 @@ const App: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Removed "Sair" button from here */}
+
             <button
-              onClick={handleLogout}
-              className="text-slate-400 hover:text-red-400 transition-colors text-xs font-bold uppercase tracking-wider"
-            >
-              Sair
-            </button>
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => setIsMenuOpen(true)}
               className="md:hidden w-10 h-10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
             >
-              <i className={`fa-solid ${isMenuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
+              <i className="fa-solid fa-bars text-xl"></i>
             </button>
-            <div className="hidden sm:flex items-center gap-3 pl-4 border-l border-slate-800 cursor-pointer" onClick={() => navigate('profile')}>
-              <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs overflow-hidden">
+
+            <div className="flex items-center gap-3 pl-4 border-l border-slate-800 cursor-pointer" onClick={() => navigate('profile')}>
+              <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs overflow-hidden hover:ring-2 hover:ring-indigo-500 transition-all">
                 {userProfile?.avatarUrl ? (
                   <img src={userProfile.avatarUrl} alt="User" className="w-full h-full object-cover" />
                 ) : (
@@ -315,25 +316,60 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {
-          isMenuOpen && (
-            <div className="md:hidden border-t border-slate-800 bg-slate-900/95 animate-fadeIn">
-              <div className="p-4 space-y-2">
+        {/* Mobile Sidebar (Slidebar) */}
+        {isMenuOpen && (
+          <div className="fixed inset-0 z-50 flex justify-end">
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm animate-fadeIn"
+              onClick={() => setIsMenuOpen(false)}
+            ></div>
+
+            {/* Sidebar Drawer */}
+            <div className="relative w-64 bg-slate-950 border-l border-slate-800 h-full shadow-2xl p-6 overflow-y-auto animate-slideInRight">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-black text-white tracking-tight">Menu</h2>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white bg-slate-800/50 rounded-lg transition-colors"
+                >
+                  <i className="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+
+              <div className="space-y-2">
                 {navLinks.map((link) => (
                   <button
                     key={link.view}
                     onClick={() => navigate(link.view)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold transition-all ${view.startsWith(link.view.split('-')[0])
                       ? 'text-indigo-400 bg-indigo-500/10'
-                      : 'text-slate-400 active:bg-slate-800'
+                      : 'text-slate-400 hover:bg-slate-900 active:bg-slate-800'
                       }`}
                   >
                     <i className={`fa-solid ${link.icon} w-5`}></i>
                     {link.label}
                   </button>
                 ))}
-                <div className="pt-4 mt-4 border-t border-slate-800">
+
+                <div className="pt-6 mt-6 border-t border-slate-800">
+                  <div
+                    onClick={() => navigate('profile')}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-900 transition-all mb-2"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs overflow-hidden">
+                      {userProfile?.avatarUrl ? (
+                        <img src={userProfile.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                      ) : (
+                        <i className="fa-solid fa-user"></i>
+                      )}
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-sm font-bold text-white truncate">{userProfile?.fullName || 'Meu Perfil'}</p>
+                      <p className="text-xs text-slate-500 truncate">Editar informações</p>
+                    </div>
+                  </div>
+
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold text-red-400 hover:bg-red-500/10 transition-all"
@@ -344,8 +380,8 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
-          )
-        }
+          </div>
+        )}
       </nav >
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -426,6 +462,7 @@ const App: React.FC = () => {
             session={session}
             onBack={() => navigate('dashboard')}
             onProfileUpdate={() => loadUserProfile(session.user.id)}
+            onLogout={handleLogout}
           />
         )}
 
@@ -509,6 +546,14 @@ const App: React.FC = () => {
                   <label className="text-sm font-bold text-slate-500 uppercase tracking-widest">Data de Entrega</label>
                   <input required name="date" type="date" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 focus:border-indigo-500 outline-none transition-all text-white" />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-500 uppercase tracking-widest">Valor (R$)</label>
+                <input name="value" type="number" step="0.01" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-700 text-white" placeholder="0,00" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-bold text-slate-500 uppercase tracking-widest">Observações</label>
+                <textarea name="notes" rows={3} className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-700 text-white" placeholder="Detalhes adicionais sobre o projeto..."></textarea>
               </div>
               <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-2xl shadow-xl shadow-indigo-600/20 transition-all active:scale-[0.98]">
                 PRÓXIMO: BRIEFING INTELIGENTE

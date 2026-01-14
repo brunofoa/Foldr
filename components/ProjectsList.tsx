@@ -74,6 +74,7 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, onSelectProject, 
             <tr className="border-b border-slate-700 bg-slate-900/50">
               <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Projeto</th>
               <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest hidden md:table-cell">Cliente</th>
+              <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest hidden lg:table-cell text-right">Valor</th>
               <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest">Status</th>
               <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest hidden sm:table-cell">Entrega</th>
               <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest text-right">Ações</th>
@@ -94,6 +95,11 @@ const ProjectsList: React.FC<ProjectsListProps> = ({ projects, onSelectProject, 
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">
                   <span className="text-slate-400">{project.client}</span>
+                </td>
+                <td className="px-6 py-4 hidden lg:table-cell text-right">
+                  <span className="text-slate-300 font-mono">
+                    {project.value ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(project.value) : '-'}
+                  </span>
                 </td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-tighter ${project.status === ProjectStatus.CONCLUIDO ? 'bg-emerald-500/10 text-emerald-500' :

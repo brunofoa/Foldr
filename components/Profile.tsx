@@ -7,9 +7,10 @@ interface ProfileProps {
     session: Session;
     onBack: () => void;
     onProfileUpdate: () => void;
+    onLogout: () => void;
 }
 
-const Profile: React.FC<ProfileProps> = ({ session, onBack, onProfileUpdate }) => {
+const Profile: React.FC<ProfileProps> = ({ session, onBack, onProfileUpdate, onLogout }) => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -158,6 +159,16 @@ const Profile: React.FC<ProfileProps> = ({ session, onBack, onProfileUpdate }) =
                         {saving ? 'Salvando...' : 'Salvar Alterações'}
                     </button>
                 </form>
+
+                <div className="pt-6 border-t border-slate-800">
+                    <button
+                        onClick={onLogout}
+                        className="w-full flex items-center justify-center gap-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 font-bold py-4 rounded-xl transition-all"
+                    >
+                        <i className="fa-solid fa-right-from-bracket"></i>
+                        Sair da Conta
+                    </button>
+                </div>
             </div>
         </div>
     );

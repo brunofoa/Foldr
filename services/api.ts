@@ -10,6 +10,8 @@ const mapProject = (row: any): Project => ({
     type: row.type as any,
     deliveryDate: row.delivery_date ?? '',
     status: (row.status as ProjectStatus) ?? ProjectStatus.BRIEFING,
+    value: row.value ?? 0,
+    notes: row.notes ?? '',
     steps: [], // Steps would need a separate fetch or join
     checklist: [],
     alerts: [],
@@ -64,7 +66,9 @@ export const api = {
                 client: project.client,
                 type: project.type,
                 delivery_date: project.deliveryDate,
-                status: project.status
+                status: project.status,
+                value: project.value,
+                notes: project.notes
             })
             .select()
             .single();
@@ -128,6 +132,8 @@ export const api = {
             phone: row.phone ?? '',
             email: row.email ?? '',
             birthDate: row.birth_date ?? '',
+            company: row.company ?? '',
+            tags: row.tags ?? [],
             createdAt: row.created_at
         }));
     },
@@ -140,7 +146,9 @@ export const api = {
                 name: client.name,
                 phone: client.phone,
                 email: client.email,
-                birth_date: client.birthDate
+                birth_date: client.birthDate,
+                company: client.company,
+                tags: client.tags
             })
             .select()
             .single();
@@ -153,6 +161,8 @@ export const api = {
             phone: data.phone ?? '',
             email: data.email ?? '',
             birthDate: data.birth_date ?? '',
+            company: data.company ?? '',
+            tags: data.tags ?? [],
             createdAt: data.created_at
         };
     },
@@ -164,7 +174,9 @@ export const api = {
                 name: client.name,
                 phone: client.phone,
                 email: client.email,
-                birth_date: client.birthDate
+                birth_date: client.birthDate,
+                company: client.company,
+                tags: client.tags
             })
             .eq('id', client.id);
 
