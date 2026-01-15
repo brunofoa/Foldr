@@ -316,72 +316,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Sidebar (Slidebar) */}
-        {isMenuOpen && (
-          <div className="fixed inset-0 z-[150] flex justify-end">
-            {/* Backdrop */}
-            <div
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm animate-fadeIn"
-              onClick={() => setIsMenuOpen(false)}
-            ></div>
 
-            {/* Sidebar Drawer */}
-            <div className="relative w-64 bg-slate-950 border-l border-slate-800 h-full shadow-2xl p-6 overflow-y-auto animate-slideInRight">
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-xl font-black text-white tracking-tight">Menu</h2>
-                <button
-                  onClick={() => setIsMenuOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white bg-slate-800/50 rounded-lg transition-colors"
-                >
-                  <i className="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                {navLinks.map((link) => (
-                  <button
-                    key={link.view}
-                    onClick={() => navigate(link.view)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold transition-all ${view.startsWith(link.view.split('-')[0])
-                      ? 'text-indigo-400 bg-indigo-500/10'
-                      : 'text-slate-400 hover:bg-slate-900 active:bg-slate-800'
-                      }`}
-                  >
-                    <i className={`fa-solid ${link.icon} w-5`}></i>
-                    {link.label}
-                  </button>
-                ))}
-
-                <div className="pt-6 mt-6 border-t border-slate-800">
-                  <div
-                    onClick={() => navigate('profile')}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-900 transition-all mb-2"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs overflow-hidden">
-                      {userProfile?.avatarUrl ? (
-                        <img src={userProfile.avatarUrl} alt="User" className="w-full h-full object-cover" />
-                      ) : (
-                        <i className="fa-solid fa-user"></i>
-                      )}
-                    </div>
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-sm font-bold text-white truncate">{userProfile?.fullName || 'Meu Perfil'}</p>
-                      <p className="text-xs text-slate-500 truncate">Editar informações</p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold text-red-400 hover:bg-red-500/10 transition-all"
-                  >
-                    <i className="fa-solid fa-right-from-bracket w-5"></i>
-                    Sair
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </nav >
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -580,6 +515,73 @@ const App: React.FC = () => {
           <p className="text-slate-600 text-xs">Gestão Inteligente para Criativos do Audiovisual.</p>
         </div>
       </footer>
+
+      {/* Mobile Sidebar (Slidebar) */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-[150] flex justify-end">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm animate-fadeIn"
+            onClick={() => setIsMenuOpen(false)}
+          ></div>
+
+          {/* Sidebar Drawer */}
+          <div className="relative w-64 bg-slate-950 border-l border-slate-800 h-full shadow-2xl p-6 overflow-y-auto animate-slideInRight">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-black text-white tracking-tight">Menu</h2>
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white bg-slate-800/50 rounded-lg transition-colors"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              {navLinks.map((link) => (
+                <button
+                  key={link.view}
+                  onClick={() => navigate(link.view)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold transition-all ${view.startsWith(link.view.split('-')[0])
+                    ? 'text-indigo-400 bg-indigo-500/10'
+                    : 'text-slate-400 hover:bg-slate-900 active:bg-slate-800'
+                    }`}
+                >
+                  <i className={`fa-solid ${link.icon} w-5`}></i>
+                  {link.label}
+                </button>
+              ))}
+
+              <div className="pt-6 mt-6 border-t border-slate-800">
+                <div
+                  onClick={() => navigate('profile')}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer hover:bg-slate-900 transition-all mb-2"
+                >
+                  <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs overflow-hidden">
+                    {userProfile?.avatarUrl ? (
+                      <img src={userProfile.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                    ) : (
+                      <i className="fa-solid fa-user"></i>
+                    )}
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-sm font-bold text-white truncate">{userProfile?.fullName || 'Meu Perfil'}</p>
+                    <p className="text-xs text-slate-500 truncate">Editar informações</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left font-bold text-red-400 hover:bg-red-500/10 transition-all"
+                >
+                  <i className="fa-solid fa-right-from-bracket w-5"></i>
+                  Sair
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div >
   );
 };
